@@ -5,25 +5,30 @@ import (
 	"time"
 )
 
+var pomodoroMinute int = 1
+var totalMinutes int = 25
+
 func main() {
 
-	minutesPomodoro := 25
 	now := time.Now()
-	minuteTimer := time.NewTimer(60 * time.Second)
-
 	fmt.Println("Pomodoro Started:", now)
 
-	for currentMinute := 1; currentMinute <= minutesPomodoro; currentMinute++ {
+	go pomodoroHeartbeat()
+	time.Sleep(26 * time.Second)
 
-		<-minuteTimer.C
+}
 
-		// printing remaining time every 5 minutes
-		timeMod := currentMinute%5 == 0
-		if timeMod {
-			remainingMinutes := minutesPomodoro - currentMinute
-			println("Remaining minutes: ", remainingMinutes)
+func pomodoroHeartbeat() {
+	for range time.Tick(1 * time.Second) {
+		timeMod := pomodoroMinute%5 == 0
+		if timeMod == true && pomodoroMinute != 25 {
+			println("Remaining minutes: ", totalMinutes-pomodoroMinute)
 		}
+		pomodoroMinute++
 
+		if pomodoroMinute == 26 {
+			now := time.Now()
+			fmt.Println("Pomodoro Finished:", now)
+		}
 	}
-
 }
