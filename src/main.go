@@ -19,15 +19,16 @@ var totalMinutes int = 25
 func main() {
 
 	startTime := time.Now()
-	fmt.Println("Pomodoro Started:", startTime)
+
+	fmt.Println("Pomodoro Started:", startTime.Format("01-02-2006 15:04"))
 
 	go pomodoroHeartbeat()
-	time.Sleep(25 * time.Minute)
+	time.Sleep(25 * time.Second)
 	finishPomodoro()
 }
 
 func pomodoroHeartbeat() {
-	ticker := time.NewTicker(time.Minute)
+	ticker := time.NewTicker(time.Second)
 
 	for range ticker.C {
 		timeMod := pomodoroMinute%5 == 0
@@ -45,7 +46,7 @@ func pomodoroHeartbeat() {
 
 func finishPomodoro() {
 
-	endTime := time.Now()
+	endTime := time.Now().Format("01-02-2006 15:04")
 	fmt.Println("Pomodoro Finished:", endTime)
 
 	f, err := os.Open("../assets/tone.mp3")
@@ -67,9 +68,29 @@ func finishPomodoro() {
 	})))
 
 	<-done
-
+	persistPomodoro(endTime)
 	displayEnd()
 
+}
+
+func persistPomodoro(endTime string) {
+	f, err := os.Create("gomodoro.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	l, err := f.WriteString(endTime)
+	if err != nil {
+		fmt.Println(err)
+		f.Close()
+		return
+	}
+	fmt.Println(l, "bytes written successfully")
+	err = f.Close()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
 func displayEnd() {
