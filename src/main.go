@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -11,20 +12,29 @@ import (
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var pomodoroMinute int = 1
-var totalMinutes int = 25
+var gomodoroMinutes int = 25
+var gomodoroDB, _ = sql.Open("sqlite3", "./gomodoro.db")
+var startDatetime = time.Now()
+var startDate = startDatetime.Format("02-01-2006")
 
 func main() {
 
-	startTime := time.Now()
+	defer gomodoroDB.Close()
+	initDB(gomodoroDB)
 
-	fmt.Println("Pomodoro Started:", startTime.Format("01-02-2006 15:04"))
+	startTime := startDatetime.Format("15:04:05")
+	fmt.Println("Pomodoro Started:", startDate, startTime)
 
 	go pomodoroHeartbeat()
 	time.Sleep(25 * time.Second)
-	finishPomodoro()
+
+	finishPomodoro(startTime)
+
 }
 
 func pomodoroHeartbeat() {
@@ -33,7 +43,7 @@ func pomodoroHeartbeat() {
 	for range ticker.C {
 		timeMod := pomodoroMinute%5 == 0
 		if timeMod == true && pomodoroMinute != 25 {
-			println("Remaining minutes:", totalMinutes-pomodoroMinute)
+			println("Remaining minutes:", gomodoroMinutes-pomodoroMinute)
 		}
 		pomodoroMinute++
 
@@ -44,10 +54,11 @@ func pomodoroHeartbeat() {
 	}
 }
 
-func finishPomodoro() {
+func finishPomodoro(startTime string) {
 
-	endTime := time.Now().Format("01-02-2006 15:04")
-	fmt.Println("Pomodoro Finished:", endTime)
+	endTime := startDatetime.Add(time.Minute * 25).Format("15:04:05")
+
+	fmt.Println("Pomodoro Finished:", startDate, endTime)
 
 	f, err := os.Open("../assets/tone.mp3")
 	if err != nil {
@@ -68,29 +79,11 @@ func finishPomodoro() {
 	})))
 
 	<-done
-	persistPomodoro(endTime)
+
+	insertRecord(gomodoroDB, startDate, startTime, endTime, gomodoroMinutes, "", "")
+
 	displayEnd()
 
-}
-
-func persistPomodoro(endTime string) {
-	f, err := os.Create("gomodoro.txt")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	l, err := f.WriteString(endTime)
-	if err != nil {
-		fmt.Println(err)
-		f.Close()
-		return
-	}
-	fmt.Println(l, "bytes written successfully")
-	err = f.Close()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 }
 
 func displayEnd() {
@@ -103,4 +96,38 @@ func displayEnd() {
 	))
 
 	w.ShowAndRun()
+}
+
+func initDB(db *sql.DB) {
+	createTable(db)
+}
+
+func createTable(db *sql.DB) {
+	createTableGomodoros := `CREATE TABLE IF NOT EXISTS gomodoros (
+		"id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+		"date" DATE NOT NULL,		
+		"startTimestamp" TIME,
+		"endTimestamp" TIME,
+		"minutes" INT NOT NULL,
+		"category" TEXT NOT NULL,
+		"subCategory" TEXT
+	  );`
+
+	statement, err := db.Prepare(createTableGomodoros)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	statement.Exec()
+}
+
+func insertRecord(db *sql.DB, date string, startTimestamp string, endTimestamp string, minutes int, category string, subcategory string) {
+	insertGomodoroSQL := `INSERT INTO gomodoros(date, startTimestamp, endTimestamp, minutes, category, subCategory) VALUES (?,?,?,?,?,?)`
+	statement, err := db.Prepare(insertGomodoroSQL)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	_, err = statement.Exec(date, startTimestamp, endTimestamp, minutes, category, subcategory)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
 }
