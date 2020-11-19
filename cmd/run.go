@@ -61,7 +61,7 @@ go run --category coding
 		fmt.Println("Pomodoro Started:", startDate, startTime)
 	
 		go pomodoroHeartbeat()
-		time.Sleep(time.Duration(gomodoroMinutes) * time.Second)
+		time.Sleep(time.Duration(gomodoroMinutes) * time.Minute)
 	
 		finishPomodoro(startTime)		
 	},
@@ -80,7 +80,7 @@ func init() {
 
 func pomodoroHeartbeat() {
 	pomodoroMinute := 1
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(time.Minute)
 	
 	for range ticker.C {
 		timeMod := pomodoroMinute%5 == 0
