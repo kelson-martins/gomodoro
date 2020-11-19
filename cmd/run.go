@@ -33,27 +33,26 @@ import (
 	_ "github.com/mattn/go-sqlite3"	
 )
 
-var pomodoroMinute int = 1
-var gomodoroMinutes int = 25
-var gomodoroDB, _ = sql.Open("sqlite3", "./gomodoro.db")
+var applicationPath = "/etc/gomodoro/"
+
+var gomodoroDB, _ = sql.Open("sqlite3", os.Getenv("HOME") + "/gomodoro/gomodoro.db")
 var startDatetime = time.Now()
 var startDate = startDatetime.Format("02-01-2006")
 var category string
 var subcategory string
+var gomodoroMinutes int
 
 // runCmd represents the run command
 var runCmd = &cobra.Command{
 	Use:   "run",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Run a [Go]modoro",
+	Long: `The 'run' command is used to start a new [go]modoro session.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Examples:
+
+go run --category coding
+`,
 	Run: func(cmd *cobra.Command, args []string) {
-		
-		fmt.Println("run called")
 
 		defer gomodoroDB.Close()
 		initDB(gomodoroDB)
@@ -62,29 +61,35 @@ to quickly create a Cobra application.`,
 		fmt.Println("Pomodoro Started:", startDate, startTime)
 	
 		go pomodoroHeartbeat()
-		time.Sleep(25 * time.Second)
+		time.Sleep(time.Duration(gomodoroMinutes) * time.Second)
 	
 		finishPomodoro(startTime)		
 	},
 }
 
+
+
 func init() {
 	rootCmd.AddCommand(runCmd)
 	runCmd.PersistentFlags().StringVarP(&category, "category", "c", "", "gomodoro category (required)")
 	runCmd.MarkPersistentFlagRequired("category")
+	runCmd.PersistentFlags().StringVarP(&subcategory, "subcategory", "s", "", "gomodoro subcategory")
+	runCmd.PersistentFlags().IntVarP(&gomodoroMinutes, "minutes", "m", 25, "gomodoro minutes session")
+	runCmd.MarkPersistentFlagRequired("category")
 }
 
 func pomodoroHeartbeat() {
+	pomodoroMinute := 1
 	ticker := time.NewTicker(time.Second)
-
+	
 	for range ticker.C {
 		timeMod := pomodoroMinute%5 == 0
-		if timeMod == true && pomodoroMinute != 25 {
+		if timeMod == true && pomodoroMinute != gomodoroMinutes {
 			println("Remaining minutes:", gomodoroMinutes-pomodoroMinute)
 		}
 		pomodoroMinute++
 
-		if pomodoroMinute == 26 {
+		if pomodoroMinute == gomodoroMinutes + 1 {
 			ticker.Stop()
 		}
 
@@ -93,11 +98,11 @@ func pomodoroHeartbeat() {
 
 func finishPomodoro(startTime string) {
 
-	endTime := startDatetime.Add(time.Minute * 25).Format("15:04:05")
+	endTime := startDatetime.Add(time.Minute * time.Duration(gomodoroMinutes)).Format("15:04:05")
 
 	fmt.Println("Pomodoro Finished:", startDate, endTime)
 
-	f, err := os.Open("./assets/tone.mp3")
+	f, err := os.Open("/etc/gomodoro/tone.mp3")
 	if err != nil {
 		log.Fatal(err)
 	}
