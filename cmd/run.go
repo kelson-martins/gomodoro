@@ -122,7 +122,7 @@ func finishPomodoro(startTime string) {
 
 	<-done
 
-	insertRecord(gomodoroDB, startDate, startTime, endTime, gomodoroMinutes, category, "")
+	insertRecord(gomodoroDB, startDate, startTime, endTime, gomodoroMinutes, category, subcategory)
 
 	displayEnd()
 
