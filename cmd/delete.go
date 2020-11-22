@@ -19,8 +19,7 @@ import (
 
 	"github.com/spf13/cobra"
 	_ "github.com/mattn/go-sqlite3"	
-	"log"
-	"fmt"
+	"db"
 )
 
 var id int
@@ -34,15 +33,14 @@ var deleteCmd = &cobra.Command{
 gomodoro delete --id 2
 gomodoro delete --id latest`,
 	Run: func(cmd *cobra.Command, args []string) {
-		defer gomodoroDB.Close()
-		
-		
+
 		if id == 0 {
-			deleteLatest()
+			db.DeleteLatest()
 		} else {
-			deleteID(id)
+			db.ExternalDeleteID(id)
 		}
 		
+		db.Close()
 	},
 }
 
@@ -64,38 +62,3 @@ func init() {
 }
 
 
-func deleteLatest() {
-	
-	var toDelete int
-
-	latestStatement := `SELECT id FROM gomodoros ORDER BY id DESC LIMIT 1;`	
-	
-
-	rows, err := gomodoroDB.Query(latestStatement)
-
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	for rows.Next() {
-		rows.Scan(&toDelete)
-	}
-
-	if toDelete > 0 {
-		deleteID(toDelete)
-	}
-
-}
-
-func deleteID(id int) {
-	
-	deleteStatement := `DELETE FROM gomodoros WHERE id = ?`
-	statement, err := gomodoroDB.Prepare(deleteStatement)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	_, err = statement.Exec(id)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	fmt.Printf("[Go]modoro ID %v was deleted",id)
-}

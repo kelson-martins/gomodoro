@@ -18,7 +18,6 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -31,11 +30,10 @@ import (
 	"github.com/faiface/beep/speaker"
 
 	_ "github.com/mattn/go-sqlite3"	
+	"db"
 )
 
-var applicationPath = "/etc/gomodoro/"
-
-var gomodoroDB, _ = sql.Open("sqlite3", os.Getenv("HOME") + "/gomodoro/gomodoro.db")
+var configFilesPath="/etc/gomodoro/"
 var startDatetime = time.Now()
 var startDate = startDatetime.Format("02-01-2006")
 var category string
@@ -53,17 +51,12 @@ Examples:
 go run --category coding
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-
-		defer gomodoroDB.Close()
-		initDB(gomodoroDB)
-	
 		startTime := startDatetime.Format("15:04:05")
 		fmt.Println("Pomodoro Started:", startDate, startTime)
-	
 		go pomodoroHeartbeat()
-		time.Sleep(time.Duration(gomodoroMinutes) * time.Minute)
-	
-		finishPomodoro(startTime)		
+		time.Sleep(time.Duration(gomodoroMinutes) * time.Second)
+		finishPomodoro(startTime)	
+		db.Close()	
 	},
 }
 
@@ -80,7 +73,7 @@ func init() {
 
 func pomodoroHeartbeat() {
 	pomodoroMinute := 1
-	ticker := time.NewTicker(time.Minute)
+	ticker := time.NewTicker(time.Second)
 	
 	for range ticker.C {
 		timeMod := pomodoroMinute%5 == 0
@@ -102,7 +95,7 @@ func finishPomodoro(startTime string) {
 
 	fmt.Println("Pomodoro Finished:", startDate, endTime)
 
-	f, err := os.Open("/etc/gomodoro/tone.mp3")
+	f, err := os.Open(configFilesPath + "tone.mp3")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -122,7 +115,7 @@ func finishPomodoro(startTime string) {
 
 	<-done
 
-	insertRecord(gomodoroDB, startDate, startTime, endTime, gomodoroMinutes, category, subcategory)
+	db.InsertRecord(startDate, startTime, endTime, gomodoroMinutes, category, subcategory)
 
 	displayEnd()
 
@@ -140,36 +133,7 @@ func displayEnd() {
 	w.ShowAndRun()
 }
 
-func initDB(db *sql.DB) {
-	createTable(db)
-}
 
-func createTable(db *sql.DB) {
-	createTableGomodoros := `CREATE TABLE IF NOT EXISTS gomodoros (
-		"id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-		"date" DATE NOT NULL,		
-		"startTimestamp" TIME,
-		"endTimestamp" TIME,
-		"minutes" INT NOT NULL,
-		"category" TEXT NOT NULL,
-		"subCategory" TEXT
-	  );`
 
-	statement, err := db.Prepare(createTableGomodoros)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	statement.Exec()
-}
 
-func insertRecord(db *sql.DB, date string, startTimestamp string, endTimestamp string, minutes int, category string, subcategory string) {
-	insertGomodoroSQL := `INSERT INTO gomodoros(date, startTimestamp, endTimestamp, minutes, category, subCategory) VALUES (?,?,?,?,?,?)`
-	statement, err := db.Prepare(insertGomodoroSQL)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	_, err = statement.Exec(date, startTimestamp, endTimestamp, minutes, category, subcategory)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-}
+

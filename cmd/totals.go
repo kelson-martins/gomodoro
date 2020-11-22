@@ -16,14 +16,11 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"time"
-	"github.com/spf13/cobra"
-	_ "github.com/mattn/go-sqlite3"	
-	"database/sql"
-	"log"
-)
+	"db"
 
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/spf13/cobra"
+)
 
 // totalsCmd represents the totals command
 var totalsCmd = &cobra.Command{
@@ -33,8 +30,8 @@ var totalsCmd = &cobra.Command{
 
 gomodoro totals --days 30.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		defer gomodoroDB.Close()
-		getTotalsRecord(gomodoroDB)
+		db.GetTotalsRecord()
+		db.Close()
 	},
 }
 
@@ -49,41 +46,4 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// totalsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func getTotalsRecord(db *sql.DB) {
-
-	var allTimeTotals int
-	var todayTotals int
-
-	startDatetime := time.Now()
-	startDate := startDatetime.Format("02-01-2006")
-
-	rows, err := gomodoroDB.Query(`SELECT COUNT(id) as today FROM gomodoros WHERE date = ?`, startDate)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-
-	for rows.Next() {
-		var today int
-		rows.Scan(&today)
-
-		todayTotals = today
-	}
-
-	rows2, err := gomodoroDB.Query(`SELECT COUNT(id) as total FROM gomodoros`)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-
-	for rows2.Next() {
-		var total int
-		rows2.Scan(&total)
-
-		allTimeTotals = total
-	}
-
-	fmt.Println("[Go]modoros today: ", todayTotals)
-	fmt.Println("[Go]modoros all-time: ", allTimeTotals)	
 }
