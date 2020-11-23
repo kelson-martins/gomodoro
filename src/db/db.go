@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -90,46 +91,68 @@ func deleteID(id int) {
 
 func GetTotalsRecord() {
 
-	// var allTimeTotals int
-	// var todayTotals int
-	// var year int
+	var allTimeTotals int
+	var todayTotals int
+	var monthTotals int
 
 	records := [][]string{}
 
-	// startDatetime := time.Now()
-	// startDate := startDatetime.Format("02-01-2006")
+	startDatetime := time.Now()
+	startDate := startDatetime.Format("02-01-2006")
+	currentMonth := startDate[3:]
 
-	rows, err := gomodoroDB.Query(`SELECT strftime(date) as date, substr(date,7) as year, startTimestamp, category, subcategory FROM gomodoros`)
+	rows, err := gomodoroDB.Query(`SELECT strftime(date) as date, substr(date,4) as monthYear,substr(date,7) as year, startTimestamp, category, subcategory FROM gomodoros`)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 
 	for rows.Next() {
+		var date, monthYear, year, startTimestamp, category, subcategory string
+		rows.Scan(&date, &monthYear, &year, &startTimestamp, &category, &subcategory)
 
-		var date, year, startTimestamp, category, subcategory string
-		rows.Scan(&date, &year, &startTimestamp, &category, &subcategory)
+		data := []string{date, monthYear, year, startTimestamp, category, subcategory}
+		records = append(records, data)
 
-		data := []string{date, year, startTimestamp, category, subcategory}
-		records := append(records, data)
-		fmt.Println(records)
-		// todayTotals = today
+		allTimeTotals++
 	}
 
-	for row, _ := range records {
-		fmt.Println(row)
+	for _, row := range records {
+		dbDate, dbMonth := row[0], row[1]
+		if dbDate == startDate {
+			todayTotals++
+		}
+
+		if dbMonth == currentMonth {
+			monthTotals++
+		}
 	}
-	// rows2, err := gomodoroDB.Query(`SELECT COUNT(id) as total FROM gomodoros`)
-	// if err != nil {
-	// 	log.Fatalln(err.Error())
-	// }
 
-	// for rows2.Next() {
-	// 	var total int
-	// 	rows2.Scan(&total)
+	fmt.Println("[Go]modoros today: ", todayTotals)
+	fmt.Println("[Go]modoros month: ", monthTotals)
+	fmt.Println("[Go]modoros all-time: ", allTimeTotals)
+}
 
-	// 	allTimeTotals = total
-	// }
+func ListGomodoros(days int) {
 
-	// fmt.Println("[Go]modoros today: ", todayTotals)
-	// fmt.Println("[Go]modoros all-time: ", allTimeTotals)
+	queryStatement := "SELECT id, strftime(date) as date, startTimestamp, category, subCategory from gomodoros WHERE date > date('now', '-? day') ORDER BY id DESC"
+
+	rows, err := gomodoroDB.Query(queryStatement, days)
+
+	if err != nil {
+		fmt.Println("error")
+		log.Fatalln(err.Error())
+	}
+
+	for rows.Next() {
+		var id, date, startTimestamp, category, subcategory string
+		rows.Scan(&id, &date, &startTimestamp, &category, &subcategory)
+
+		if subcategory != "" {
+			fmt.Printf("ID: %v\t %v %v\t Category: %v\t SubCategory: %v\n", id, date, startTimestamp, category, subcategory)
+		} else {
+			fmt.Printf("ID: %v\t %v %v\t Category: %v\n", id, date, startTimestamp, category)
+		}
+
+	}
+
 }
