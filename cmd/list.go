@@ -16,8 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
 	"db"
 
 	"github.com/spf13/cobra"
@@ -36,7 +34,6 @@ gomodoro list --query study
 gomodoro list --days 10
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list called")
 		db.ListGomodoros(days)
 	},
 }

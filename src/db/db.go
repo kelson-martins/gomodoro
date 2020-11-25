@@ -93,15 +93,17 @@ func GetTotalsRecord() {
 
 	var allTimeTotals int
 	var todayTotals int
+	var yesterdayTotals int
 	var monthTotals int
 
 	records := [][]string{}
 
 	startDatetime := time.Now()
-	startDate := startDatetime.Format("02-01-2006")
-	currentMonth := startDate[3:]
+	startDate := startDatetime.Format("2006-01-02")
+	currentMonth := startDate[0:7]
+	yesterdayDate := startDatetime.AddDate(0, 0, -1).Format("2006-01-02")
 
-	rows, err := gomodoroDB.Query(`SELECT strftime(date) as date, substr(date,4) as monthYear,substr(date,7) as year, startTimestamp, category, subcategory FROM gomodoros`)
+	rows, err := gomodoroDB.Query(`SELECT strftime(date) as date, substr(date,1,7) as monthYear,substr(date,1,4) as year, startTimestamp, category, subcategory FROM gomodoros`)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -118,8 +120,12 @@ func GetTotalsRecord() {
 
 	for _, row := range records {
 		dbDate, dbMonth := row[0], row[1]
-		if dbDate == startDate {
+
+		switch dbDate {
+		case startDate:
 			todayTotals++
+		case yesterdayDate:
+			yesterdayTotals++
 		}
 
 		if dbMonth == currentMonth {
@@ -128,15 +134,15 @@ func GetTotalsRecord() {
 	}
 
 	fmt.Println("[Go]modoros today: ", todayTotals)
-	fmt.Println("[Go]modoros month: ", monthTotals)
+	fmt.Println("[Go]modoros yesterday: ", yesterdayTotals)
+	fmt.Println("[Go]modoros this month: ", monthTotals)
 	fmt.Println("[Go]modoros all-time: ", allTimeTotals)
 }
 
 func ListGomodoros(days int) {
 
-	queryStatement := "SELECT id, strftime(date) as date, startTimestamp, category, subCategory from gomodoros WHERE date > date('now', '-? day') ORDER BY id DESC"
-
-	rows, err := gomodoroDB.Query(queryStatement, days)
+	queryStatement := fmt.Sprintf("SELECT id, strftime(date) as date, startTimestamp, category, subCategory from gomodoros WHERE date > date('now', '-%v day') ORDER BY id DESC", days)
+	rows, err := gomodoroDB.Query(queryStatement)
 
 	if err != nil {
 		fmt.Println("error")

@@ -29,11 +29,12 @@ import (
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
 
-	_ "github.com/mattn/go-sqlite3"	
 	"db"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
-var configFilesPath="/etc/gomodoro/"
+var configFilesPath = "/etc/gomodoro/"
 var startDatetime = time.Now()
 var startDate = startDatetime.Format("02-01-2006")
 var category string
@@ -54,13 +55,11 @@ go run --category coding
 		startTime := startDatetime.Format("15:04:05")
 		fmt.Println("Pomodoro Started:", startDate, startTime)
 		go pomodoroHeartbeat()
-		time.Sleep(time.Duration(gomodoroMinutes) * time.Second)
-		finishPomodoro(startTime)	
-		db.Close()	
+		time.Sleep(time.Duration(gomodoroMinutes) * time.Minute)
+		finishPomodoro(startTime)
+		db.Close()
 	},
 }
-
-
 
 func init() {
 	rootCmd.AddCommand(runCmd)
@@ -73,8 +72,8 @@ func init() {
 
 func pomodoroHeartbeat() {
 	pomodoroMinute := 1
-	ticker := time.NewTicker(time.Second)
-	
+	ticker := time.NewTicker(time.Minute)
+
 	for range ticker.C {
 		timeMod := pomodoroMinute%5 == 0
 		if timeMod == true && pomodoroMinute != gomodoroMinutes {
@@ -82,7 +81,7 @@ func pomodoroHeartbeat() {
 		}
 		pomodoroMinute++
 
-		if pomodoroMinute == gomodoroMinutes + 1 {
+		if pomodoroMinute == gomodoroMinutes+1 {
 			ticker.Stop()
 		}
 
@@ -91,6 +90,7 @@ func pomodoroHeartbeat() {
 
 func finishPomodoro(startTime string) {
 
+	dbStartdate := startDatetime.Format("2006-01-02")
 	endTime := startDatetime.Add(time.Minute * time.Duration(gomodoroMinutes)).Format("15:04:05")
 
 	fmt.Println("Pomodoro Finished:", startDate, endTime)
@@ -115,7 +115,7 @@ func finishPomodoro(startTime string) {
 
 	<-done
 
-	db.InsertRecord(startDate, startTime, endTime, gomodoroMinutes, category, subcategory)
+	db.InsertRecord(dbStartdate, startTime, endTime, gomodoroMinutes, category, subcategory)
 
 	displayEnd()
 
@@ -132,8 +132,3 @@ func displayEnd() {
 
 	w.ShowAndRun()
 }
-
-
-
-
-
