@@ -42,7 +42,7 @@ func createTable() {
 	statement.Exec()
 }
 
-func Init() {
+func init() {
 	createTable()
 }
 
