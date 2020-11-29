@@ -12,6 +12,15 @@ import (
 
 var gomodoroDB, _ = sql.Open("sqlite3", os.Getenv("HOME")+"/gomodoro/gomodoro.db")
 
+type Gomodoro struct {
+	Date           string
+	StartTimestamp string
+	EndTimestamp   string
+	Minutes        int
+	Category       string
+	SubCategory    string
+}
+
 func InsertRecord(date string, startTimestamp string, endTimestamp string, minutes int, category string, subcategory string) {
 	insertGomodoroSQL := `INSERT INTO gomodoros(date, startTimestamp, endTimestamp, minutes, category, subCategory) VALUES (?,?,?,?,?,?)`
 	statement, err := gomodoroDB.Prepare(insertGomodoroSQL)
@@ -161,4 +170,35 @@ func ListGomodoros(days int) {
 
 	}
 
+}
+
+func GetGomodorosCassandra() []Gomodoro {
+
+	queryStatement := "SELECT strftime(date) || ' ' || strftime(startTimestamp) as timestamp, startTimestamp, endTimestamp, minutes, category, subCategory from gomodoros"
+	listGomodoros := []Gomodoro{}
+
+	rows, err := gomodoroDB.Query(queryStatement)
+	if err != nil {
+		log.Fatalf("[ERROR] error fetching Gomodoros from database, %v", err.Error())
+	}
+
+	for rows.Next() {
+		var date, startTimestamp, endTimestamp, category, subcategory string
+		var minutes int
+
+		rows.Scan(&date, &startTimestamp, &endTimestamp, &minutes, &category, &subcategory)
+
+		entry := Gomodoro{
+			Date:           date,
+			StartTimestamp: startTimestamp,
+			EndTimestamp:   endTimestamp,
+			Minutes:        minutes,
+			Category:       category,
+			SubCategory:    subcategory,
+		}
+
+		listGomodoros = append(listGomodoros, entry)
+	}
+
+	return listGomodoros
 }
