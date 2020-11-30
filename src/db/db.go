@@ -13,6 +13,7 @@ import (
 var gomodoroDB, _ = sql.Open("sqlite3", os.Getenv("HOME")+"/gomodoro/gomodoro.db")
 
 type Gomodoro struct {
+	Year           string
 	Date           string
 	StartTimestamp string
 	EndTimestamp   string
@@ -174,7 +175,7 @@ func ListGomodoros(days int) {
 
 func GetGomodorosCassandra() []Gomodoro {
 
-	queryStatement := "SELECT strftime(date) || ' ' || strftime(startTimestamp) as timestamp, startTimestamp, endTimestamp, minutes, category, subCategory from gomodoros"
+	queryStatement := "SELECT substr(date,0,5) as year, date, startTimestamp, endTimestamp, minutes, category, subCategory from gomodoros"
 	listGomodoros := []Gomodoro{}
 
 	rows, err := gomodoroDB.Query(queryStatement)
@@ -183,12 +184,13 @@ func GetGomodorosCassandra() []Gomodoro {
 	}
 
 	for rows.Next() {
-		var date, startTimestamp, endTimestamp, category, subcategory string
+		var year, date, startTimestamp, endTimestamp, category, subcategory string
 		var minutes int
 
-		rows.Scan(&date, &startTimestamp, &endTimestamp, &minutes, &category, &subcategory)
+		rows.Scan(&year, &date, &startTimestamp, &endTimestamp, &minutes, &category, &subcategory)
 
 		entry := Gomodoro{
+			Year:           year,
 			Date:           date,
 			StartTimestamp: startTimestamp,
 			EndTimestamp:   endTimestamp,
@@ -201,4 +203,46 @@ func GetGomodorosCassandra() []Gomodoro {
 	}
 
 	return listGomodoros
+}
+
+func GetValidYears() []int {
+
+	yearsQuery := "SELECT substr(date,0,5) as year from gomodoros  GROUP BY year"
+	validYears := []int{}
+
+	rows, err := gomodoroDB.Query(yearsQuery)
+	if err != nil {
+		log.Fatalf("[ERROR] error fetching Gomodoros data from database, %v", err.Error())
+	}
+
+	for rows.Next() {
+		var year int
+
+		rows.Scan(&year)
+
+		validYears = append(validYears, year)
+	}
+
+	return validYears
+}
+
+func GetLocalGomodorosByYear(yeear int) []gomodoro {
+	gomodorosQuery := fmt.Printf("SELECT * from gomodoros  WHERE substr(date,0,5) = '%v'", year)
+
+	localGomodoros := []gomodoros{}
+
+	rows, err := gomodoroDB.Query(gomodorosQuery)
+	if err != nil {
+		log.Fatalf("[ERROR] error fetching Gomodoros data from database, %v", err.Error())
+	}
+
+	for rows.Next() {
+		var gomodoro int
+
+		rows.Scan(&year)
+
+		validYears = append(validYears, year)
+	}
+
+	return validYears
 }
