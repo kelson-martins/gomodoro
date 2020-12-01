@@ -10,7 +10,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var gomodoroDB, _ = sql.Open("sqlite3", os.Getenv("HOME")+"/gomodoro/gomodoro.db")
+var gomodoroDB, _ = sql.Open("sqlite3", os.Getenv("HOME")+"/gomodoro/G.db")
 
 type Gomodoro struct {
 	Year           string
@@ -226,10 +226,10 @@ func GetValidYears() []int {
 	return validYears
 }
 
-func GetLocalGomodorosByYear(yeear int) []gomodoro {
-	gomodorosQuery := fmt.Printf("SELECT * from gomodoros  WHERE substr(date,0,5) = '%v'", year)
+func GetLocalGomodorosByYear(year int) []string {
+	gomodorosQuery := fmt.Sprintf("SELECT date, startTimestamp from gomodoros  WHERE substr(date,0,5) = '%v'", year)
 
-	localGomodoros := []gomodoros{}
+	localGomodoros := []string{}
 
 	rows, err := gomodoroDB.Query(gomodorosQuery)
 	if err != nil {
@@ -237,12 +237,13 @@ func GetLocalGomodorosByYear(yeear int) []gomodoro {
 	}
 
 	for rows.Next() {
-		var gomodoro int
+		var date, startTimestamp string
+		rows.Scan(&date, &startTimestamp)
 
-		rows.Scan(&year)
+		v := fmt.Sprintf("%v %v", date[0:10], startTimestamp)
 
-		validYears = append(validYears, year)
+		localGomodoros = append(localGomodoros, v)
 	}
 
-	return validYears
+	return localGomodoros
 }
