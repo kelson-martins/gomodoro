@@ -34,6 +34,9 @@ gomodoro list --query study
 gomodoro list --days 10
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		db.Init()
+		defer db.Close()
+
 		db.ListGomodoros(days)
 	},
 }

@@ -30,8 +30,10 @@ var totalsCmd = &cobra.Command{
 
 gomodoro totals --days 30.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		db.Init()
+		defer db.Close()
+
 		db.GetTotalsRecord()
-		db.Close()
 	},
 }
 

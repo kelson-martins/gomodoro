@@ -5,12 +5,16 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/spf13/viper"
 )
 
-var gomodoroDB, _ = sql.Open("sqlite3", os.Getenv("HOME")+"/gomodoro/G.db")
+// var gomodoroDB, _ = sql.Open("sqlite3", os.Getenv("HOME")+"/gomodoro/G.db")
+
+var gomodoroDB *sql.DB
 
 type Gomodoro struct {
 	Year           string
@@ -52,7 +56,11 @@ func createTable() {
 	statement.Exec()
 }
 
-func init() {
+func Init() {
+	LoadConfig()
+	dbPath := viper.GetString("gomodoro.databasePath")
+	sqliteDir := strings.Replace(dbPath, "$HOME", os.Getenv("HOME"), -1)
+	gomodoroDB, _ = sql.Open("sqlite3", sqliteDir)
 	createTable()
 }
 
@@ -105,12 +113,14 @@ func GetTotalsRecord() {
 	var todayTotals int
 	var yesterdayTotals int
 	var monthTotals int
+	var lastMonthTotals int
 
 	records := [][]string{}
 
 	startDatetime := time.Now()
 	startDate := startDatetime.Format("2006-01-02")
 	currentMonth := startDate[0:7]
+	lastMonth := startDatetime.AddDate(0, -1, 0).Format("2006-01-02")[0:7]
 	yesterdayDate := startDatetime.AddDate(0, 0, -1).Format("2006-01-02")
 
 	rows, err := gomodoroDB.Query(`SELECT strftime(date) as date, substr(date,1,7) as monthYear,substr(date,1,4) as year, startTimestamp, category, subcategory FROM gomodoros`)
@@ -138,14 +148,19 @@ func GetTotalsRecord() {
 			yesterdayTotals++
 		}
 
-		if dbMonth == currentMonth {
+		switch dbMonth {
+		case currentMonth:
 			monthTotals++
+		case lastMonth:
+			lastMonthTotals++
 		}
+
 	}
 
 	fmt.Println("[Go]modoros today: ", todayTotals)
 	fmt.Println("[Go]modoros yesterday: ", yesterdayTotals)
 	fmt.Println("[Go]modoros this month: ", monthTotals)
+	fmt.Println("[Go]modoros last month: ", lastMonthTotals)
 	fmt.Println("[Go]modoros all-time: ", allTimeTotals)
 }
 

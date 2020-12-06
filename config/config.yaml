@@ -1,0 +1,8 @@
+gomodoro:
+  databasePath: "$HOME/gomodoro/gomodoro.db"
+  cassandra:
+    cluster_id: ""
+    cluster_region: ""
+    username: ""
+    keyspace: ""
+    password: ""

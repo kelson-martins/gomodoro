@@ -52,12 +52,13 @@ Examples:
 go run --category coding
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		db.Init()
+		defer db.Close()
 		startTime := startDatetime.Format("15:04:05")
 		fmt.Println("Pomodoro Started:", startDate, startTime)
 		go pomodoroHeartbeat()
 		time.Sleep(time.Duration(gomodoroMinutes) * time.Minute)
 		finishPomodoro(startTime)
-		db.Close()
 	},
 }
 

@@ -16,10 +16,10 @@ limitations under the License.
 package cmd
 
 import (
-
-	"github.com/spf13/cobra"
-	_ "github.com/mattn/go-sqlite3"	
 	"db"
+
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/spf13/cobra"
 )
 
 var id int
@@ -33,21 +33,19 @@ var deleteCmd = &cobra.Command{
 gomodoro delete --id 2
 gomodoro delete --id latest`,
 	Run: func(cmd *cobra.Command, args []string) {
+		db.Init()
+		defer db.Close()
 
 		if id == 0 {
 			db.DeleteLatest()
 		} else {
 			db.ExternalDeleteID(id)
 		}
-		
-		db.Close()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(deleteCmd)
-
-
 
 	// Here you will define your flags and configuration settings.
 
@@ -60,5 +58,3 @@ func init() {
 	deleteCmd.Flags().IntVarP(&id, "id", "i", 0, "ID of the [Go]modoro instance to delete. 0 for latest.")
 	deleteCmd.MarkFlagRequired("id")
 }
-
-
