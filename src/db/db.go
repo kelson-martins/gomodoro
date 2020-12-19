@@ -4,12 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
-	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/spf13/viper"
 )
 
 // var gomodoroDB, _ = sql.Open("sqlite3", os.Getenv("HOME")+"/gomodoro/G.db")
@@ -56,11 +53,12 @@ func createTable() {
 	statement.Exec()
 }
 
+// Init has 2 purposes:
+/* 1. loads the config.yaml file
+// 2. opens the SQLite database and creates the main table if if it do not exist*/
 func Init() {
 	LoadConfig()
-	dbPath := viper.GetString("gomodoro.databasePath")
-	sqliteDir := strings.Replace(dbPath, "$HOME", os.Getenv("HOME"), -1)
-	gomodoroDB, _ = sql.Open("sqlite3", sqliteDir)
+	gomodoroDB, _ = sql.Open("sqlite3", config.dbPath)
 	createTable()
 }
 

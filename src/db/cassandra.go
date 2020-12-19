@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -48,9 +49,18 @@ func Sync() {
 	readRemote(token)
 }
 
+func ValidateSync() {
+
+	if isStringEmpty(config.dbPath, config.dbUsername, config.keyspace, config.clusterId, config.clusterRegion) == true {
+		log.Println("[ERROR] configure cassandra details at config [$HOME/gomodoro/config.yaml] to use the sync functionality")
+		os.Exit(0)
+	}
+
+}
+
 func LoadConfig() {
 	config = astra_config{
-		dbPath:        viper.GetString("gomodoro.databasePath"),
+		dbPath:        strings.Replace(viper.GetString("gomodoro.databasePath"), "$HOME", os.Getenv("HOME"), -1),
 		dbUsername:    viper.GetString("gomodoro.cassandra.username"),
 		dbPassword:    viper.GetString("gomodoro.cassandra.password"),
 		keyspace:      viper.GetString("gomodoro.cassandra.keyspace"),
@@ -59,10 +69,10 @@ func LoadConfig() {
 		table:         "gomodoros",
 	}
 
-	if isStringEmpty(config.dbPath, config.dbUsername, config.keyspace, config.clusterId, config.clusterRegion) == true {
-		log.Println("[ERROR] configure cassandra details at config [$HOME/gomodoro/config.yaml] to use the sync functionality")
-		os.Exit(0)
-	}
+}
+
+func GetDbPath() string {
+	return config.dbPath
 }
 
 func isStringEmpty(values ...string) bool {
