@@ -38,13 +38,9 @@ var backup_dir = "gomodoro_backup"
 // backupCmd represents the backup command
 var backupCmd = &cobra.Command{
 	Use:   "backup",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Backup the [Go]modoro database into Google Drive",
+	Long: `The backup feature integrates the application into your Google Drive to backup the [Go]modoro SQLite database. 
+The database is saved in the 'gomodoro_backup' folder at the root of your Google Drive.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("[INFO] initiating Gomodoro database backup")
 		db.LoadConfig()
@@ -91,10 +87,7 @@ func getClient(config *oauth2.Config) *http.Client {
 	// time.
 	db.LoadConfig()
 
-	// get HOME
-	user, err := user.Current()
-
-	tokFile := fmt.Sprint(user.HomeDir, "/gomodoro/token.json")
+	tokFile := fmt.Sprint(getUserHome(), "/gomodoro/token.json")
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
 		tok = getTokenFromWeb(config)
@@ -202,7 +195,10 @@ func createFile(service *drive.Service, name string, mimeType string, content io
 }
 
 func getService() (*drive.Service, error) {
-	b, err := ioutil.ReadFile("/home/kelson/gomodoro/credentials.json")
+
+	driveFile := fmt.Sprint(getUserHome(), "/gomodoro/credentials.json")
+
+	b, err := ioutil.ReadFile(driveFile)
 	if err != nil {
 		fmt.Printf("[ERROR] unable to read credentials.json file. Err: %v\n", err)
 		return nil, err
@@ -225,4 +221,16 @@ func getService() (*drive.Service, error) {
 	}
 
 	return service, err
+}
+
+func getUserHome() string {
+
+	user, err := user.Current()
+
+	if err != nil {
+		log.Fatalln("[ERROR] failure to load user's HOME dir")
+		os.Exit(1)
+	}
+
+	return user.HomeDir
 }
