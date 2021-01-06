@@ -11,7 +11,7 @@ Characteristics:
 
 ## Todo
 * Windows support.
-* Support for Gomodoros from remote Cassandra database.
+* Support for deletion of sessions from remote Cassandra database.
 * Change the visual alert for pomodoro conclusion to another graphical library.
 
 ## Help
