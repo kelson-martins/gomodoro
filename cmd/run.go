@@ -16,6 +16,10 @@ limitations under the License.
 package cmd
 
 import (
+	"github.com/ermanimer/color/v2"
+	"github.com/kelson-martins/gomodoro/src/db"
+
+	"github.com/ermanimer/progress_bar"
 	"github.com/spf13/cobra"
 
 	"fmt"
@@ -28,8 +32,6 @@ import (
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
-
-	"db"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -54,12 +56,44 @@ go run --category coding
 	Run: func(cmd *cobra.Command, args []string) {
 		db.Init()
 		defer db.Close()
-		startTime := startDatetime.Format("15:04:05")
-		fmt.Println("Pomodoro Started:", startDate, startTime)
-		go pomodoroHeartbeat()
-		time.Sleep(time.Duration(gomodoroMinutes) * time.Minute)
-		finishPomodoro(startTime)
+		runGomodoro()
 	},
+}
+
+func runGomodoro() {
+	startTime := startDatetime.Format("15:04:05")
+	fmt.Println("Gomodoro Started:", startDate, startTime)
+	gomodoroProgress()
+	finishPomodoro(startTime)
+}
+
+func gomodoroProgress() {
+	output := os.Stdout
+	orange := (&color.Color{Foreground: 172}).SprintFunction()
+	grey := (&color.Color{Foreground: 246}).SprintFunction()
+	bar := orange("{bar}")
+	percent := grey("{percent}")
+	schema := fmt.Sprintf("%s %s", bar, percent)
+	filledCharacter := "▆"
+	blankCharacter := " "
+	var length float64 = 50
+	var totalValue float64 = float64(gomodoroMinutes * 2)
+	pb := progress_bar.NewProgressBar(output, schema, filledCharacter, blankCharacter, length, totalValue)
+	// start
+	err := pb.Start()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	// update
+	for value := 1; value <= int(totalValue); value++ {
+		time.Sleep(30 * time.Second)
+		err := pb.Update(float64(value))
+		if err != nil {
+			fmt.Println(err.Error())
+			break
+		}
+	}
 }
 
 func init() {
@@ -71,30 +105,12 @@ func init() {
 	runCmd.MarkPersistentFlagRequired("category")
 }
 
-func pomodoroHeartbeat() {
-	pomodoroMinute := 1
-	ticker := time.NewTicker(time.Minute)
-
-	for range ticker.C {
-		timeMod := pomodoroMinute%5 == 0
-		if timeMod == true && pomodoroMinute != gomodoroMinutes {
-			println("Remaining minutes:", gomodoroMinutes-pomodoroMinute)
-		}
-		pomodoroMinute++
-
-		if pomodoroMinute == gomodoroMinutes+1 {
-			ticker.Stop()
-		}
-
-	}
-}
-
 func finishPomodoro(startTime string) {
 
 	dbStartdate := startDatetime.Format("2006-01-02")
 	endTime := startDatetime.Add(time.Minute * time.Duration(gomodoroMinutes)).Format("15:04:05")
 
-	fmt.Println("Pomodoro Finished:", startDate, endTime)
+	fmt.Println("Gomodoro Finished:", startDate, endTime)
 
 	f, err := os.Open(configFilesPath + "tone.mp3")
 	if err != nil {

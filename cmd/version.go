@@ -33,9 +33,9 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		var version = 0.01
+		var version = "v1.0.0"
 
-		fmt.Printf("\n[Go]modoro Version: %v\n", version)
+		fmt.Printf("[Go]modoro Version: %v\n", version)
 		fmt.Println(`
               ,_---~~~~~----._         
         _,,_,*^____      _____''*g*\"*, 
