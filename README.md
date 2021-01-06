@@ -9,9 +9,11 @@ Characteristics:
 * Configuration file is stored at `~/gomodoro/config.yaml`
 * Current version supports Linux and Darwin
 
-## TODO
+## Todo
 * Windows support.
 * Support for Gomodoros from remote Cassandra database.
+
+## Help
 
 ```
 gomodoro -h
