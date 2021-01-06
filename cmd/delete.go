@@ -16,8 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"db"
-
+	"github.com/kelson-martins/gomodoro/src/db"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/cobra"
 )

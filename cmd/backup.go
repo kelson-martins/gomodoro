@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"context"
-	"db"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -27,6 +26,7 @@ import (
 	"os"
 	"os/user"
 
+	"github.com/kelson-martins/gomodoro/src/db"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
