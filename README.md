@@ -29,9 +29,9 @@ Available Commands:
   help        Help about any command
   list        List [Go]modoro sessions
   run         Run a [Go]modoro
-  sync        A brief description of your command
+  sync        Synchronize [Go]modoros from local/remote
   totals      Query information about [Go]modoro usage totals
-  version     A brief description of your command
+  version     Display [Go]modoro version
 ```
 
 ## Installation
