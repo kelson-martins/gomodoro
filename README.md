@@ -70,7 +70,7 @@ The Gomodoro application supports remote synchronization with the `gomodoro sync
 
 #### Synchronization Requirements
 
-1. Create your Cassandra database (powered by DataStax) [here](https://astra.datastax.com/register). THe free tier supports up to 5GB of data, which is enough as the Gomodoro sync functionality consumes small bandwidth footprint.
+1. Create your Cassandra database (powered by DataStax) [here](https://astra.datastax.com/register). The free tier supports up to 5GB of data, which is enough as the Gomodoro sync functionality consumes small bandwidth footprint.
 
 2. Update the Gomodoro app `config.yaml` located at `~/gomodoro/config.yaml` with the information from your Cassandra database, more specifically the following fields:
 
