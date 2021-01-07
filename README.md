@@ -14,7 +14,15 @@ Characteristics:
 * Support for deletion of sessions from remote Cassandra database.
 * Change the visual alert for pomodoro conclusion to another graphical library.
 
-## Help
+## Installation
+
+```
+sudo make install
+```
+
+The `gomodoro` binary will be available at the `bin/` location.
+
+## Usage
 
 ```
 gomodoro -h
@@ -34,20 +42,23 @@ Available Commands:
   version     Display [Go]modoro version
 ```
 
-## Installation
-
-```
-sudo make -E install
-```
-
-## Usage
-
 #### Running a Gomodoro
 
 ```
 gomodoro run --catergory coding
 Gomodoro Started: 06-01-2021 21:13:45
 ▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆                                   %33.3
+```
+
+#### Totals
+
+```
+gomodoro totals
+[Go]modoros today:  2
+[Go]modoros yesterday:  3
+[Go]modoros this month:  18
+[Go]modoros last month:  99
+[Go]modoros all-time:  207
 ```
 
 #### Listing Gomodoros
