@@ -69,20 +69,6 @@ The Gomodoro application supports remote synchronization with the `gomodoro sync
 1. Push all local finished **gomodoros** into your remote Cassandra database
 2. Pull all remote gomodoros into local
 
-#### Backup
-
-Backup of the local SQLite database is supported via Google Drive integration.
-
-At the first backup execution, a link for integration will be displayed on the console.
-```
-gomodoro backup
-[INFO] initiating Gomodoro database backup
-[INFO] backup folder gomodoro_backup found, re-using it.
-[INFO] [Go]modoro database 'gomodoro.db' successfully saved at 'gomodoro_backup' directory
-```
-
-The backup will be stored at the root of your Google Drive filesystem at the `/gomodoro` location.
-
 #### Synchronization Requirements
 
 1. Create your Cassandra database (powered by DataStax) [here](https://astra.datastax.com/register). The free tier supports up to 5GB of data, which is enough as the Gomodoro sync functionality consumes small bandwidth footprint.
@@ -107,3 +93,17 @@ gomodoro sync
 2021/01/06 20:57:16 [INFO] [Go]modoro already synchronized, no remote changes were pulled.
 
 ```
+
+## Backup
+
+Backup of the local SQLite database is supported via Google Drive integration.
+
+At the first backup execution, a link for integration will be displayed on the console.
+```
+gomodoro backup
+[INFO] initiating Gomodoro database backup
+[INFO] backup folder gomodoro_backup found, re-using it.
+[INFO] [Go]modoro database 'gomodoro.db' successfully saved at 'gomodoro_backup' directory
+```
+
+The backup will be stored at the root of your Google Drive filesystem at the `/gomodoro` location.
