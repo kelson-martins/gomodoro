@@ -6,8 +6,8 @@ Characteristics:
 * Uses `SQLite` for storing local pomodoro sessions.
 * Support backup of local database via Google Drive integration.
 * Support synchronization via `Cassandra` database (powered by DataStax).
-* Configuration file is stored at `~/gomodoro/config.yaml`
-* Current version supports Linux and Darwin
+* Configuration file `config.yaml` and SQLite database `gomodoro.db` are stored at `~/gomodoro`.
+* Current version supports Linux and Darwin.
 
 ## Todo
 * Windows support.
