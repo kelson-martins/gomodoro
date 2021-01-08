@@ -45,7 +45,7 @@ Available Commands:
 #### Running a Gomodoro
 
 ```
-gomodoro run --catergory coding
+gomodoro run --category coding
 Gomodoro Started: 06-01-2021 21:13:45
 ▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆▆                                   %33.3
 ```
