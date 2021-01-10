@@ -30,7 +30,7 @@ a. Download the binary related to your architecture from the [releases page](htt
 
 b. From the root of the repository, run `sudo ./install.sh` to initialize the app folder structure.
 
-c. You are ready to run `gomodoro` based on the location you saved the binary.
+c. You are ready to run the `gomodoro` command.
 
 ## Usage
 
