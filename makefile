@@ -1,5 +1,6 @@
 build:
 	go build -o bin/gomodoro
+	cp bin/gomodoro /usr/local/bin
 
 build_linux:
 	echo "[INFO] building [Go]modoro for linux"

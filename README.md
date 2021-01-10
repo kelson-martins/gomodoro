@@ -16,11 +16,21 @@ Characteristics:
 
 ## Installation
 
+1. If you have a `go` development environment setup, run:
+
 ```
 sudo make install
 ```
 
-The `gomodoro` binary will be available at the `bin/` location.
+The `gomodoro` binary will be added automatically to the `/usr/local/bin/` location, so you can run `gomodoro` command straightaway.
+
+2. If you do not have a development environment:
+
+a. Download the binary related to your architecture from the [releases page](https://github.com/kelson-martins/gomodoro/releases/tag) and move it into any desired location.
+
+b. From the root of the repository, run `sudo ./install.sh` to initialize the app folder structure.
+
+c. You are ready to run the `gomodoro` command.
 
 ## Usage
 
@@ -117,4 +127,4 @@ gomodoro backup
 [INFO] [Go]modoro database 'gomodoro.db' successfully saved at 'gomodoro_backup' directory
 ```
 
-The backup will be stored at the root of your Google Drive filesystem at the `/gomodoro` location.
+The backup will be stored at the root of your Google Drive filesystem at the `/gomodoro_backup` location.
