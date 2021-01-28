@@ -29,7 +29,6 @@ var listCmd = &cobra.Command{
 	Long: `The 'list' action is used to list gomodoro sessions. Example:
 
 gomodoro list
-gomodoro list --query study
 gomodoro list --days 10
 `,
 	Run: func(cmd *cobra.Command, args []string) {
