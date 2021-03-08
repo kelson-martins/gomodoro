@@ -102,7 +102,7 @@ func deleteID(id int) {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	fmt.Printf("[Go]modoro ID %v was deleted", id)
+	fmt.Printf("[Go]modoro ID %v was deleted\n", id)
 }
 
 func GetTotalsRecord() {
