@@ -4,3 +4,4 @@ gomodoro:
     cluster_id: ""
     cluster_region: ""
     keyspace: ""
+    token: ""
