@@ -100,9 +100,8 @@ The Gomodoro application supports remote synchronization with the `gomodoro sync
 cassandra:
     cluster_id: ""
     cluster_region: ""
-    username: ""
     keyspace: ""
-    password: ""
+    token: ""
 ```
 
 3.  You are ready to sync with `gomodoro sync`

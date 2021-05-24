@@ -17,12 +17,11 @@ import (
 
 type astra_config struct {
 	dbPath        string
-	dbUsername    string
-	dbPassword    string
 	clusterId     string
 	clusterRegion string
 	keyspace      string
 	table         string
+	token         string
 }
 
 type gomodoro struct {
@@ -43,7 +42,7 @@ type gomodoros struct {
 }
 
 func Sync() {
-	token := getToken()
+	token := config.token
 	createCassandraTable(token)
 	pushToRemote(token)
 	readRemote(token)
@@ -51,7 +50,7 @@ func Sync() {
 
 func ValidateSync() {
 
-	if isStringEmpty(config.dbPath, config.dbUsername, config.keyspace, config.clusterId, config.clusterRegion) == true {
+	if isStringEmpty(config.dbPath, config.token, config.keyspace, config.clusterId, config.clusterRegion) == true {
 		log.Println("[ERROR] configure cassandra details at config [$HOME/gomodoro/config.yaml] to use the sync functionality")
 		os.Exit(0)
 	}
@@ -61,11 +60,10 @@ func ValidateSync() {
 func LoadConfig() {
 	config = astra_config{
 		dbPath:        strings.Replace(viper.GetString("gomodoro.databasePath"), "$HOME", os.Getenv("HOME"), -1),
-		dbUsername:    viper.GetString("gomodoro.cassandra.username"),
-		dbPassword:    viper.GetString("gomodoro.cassandra.password"),
 		keyspace:      viper.GetString("gomodoro.cassandra.keyspace"),
 		clusterId:     viper.GetString("gomodoro.cassandra.cluster_id"),
 		clusterRegion: viper.GetString("gomodoro.cassandra.cluster_region"),
+		token:         viper.GetString("gomodoro.cassandra.token"),
 		table:         "gomodoros",
 	}
 
@@ -84,39 +82,6 @@ func isStringEmpty(values ...string) bool {
 	}
 
 	return false
-}
-
-func getToken() string {
-
-	authURL := fmt.Sprintf("https://%v-%v.apps.astra.datastax.com/api/rest/v1/auth", config.clusterId, config.clusterRegion)
-
-	reqBody, err := json.Marshal(map[string]string{
-		"username": config.dbUsername,
-		"password": config.dbPassword,
-	})
-	if err != nil {
-		print(err)
-	}
-
-	resp, err := http.Post(authURL,
-		"application/json", bytes.NewBuffer(reqBody))
-	if err != nil {
-		print(err)
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		print(err)
-	}
-
-	var dat map[string]interface{}
-
-	if err := json.Unmarshal(body, &dat); err != nil {
-		fmt.Println(err)
-	}
-
-	log.Println("[INFO] cassandra token retrieved successfuly")
-	return dat["authToken"].(string)
 }
 
 func createCassandraTable(token string) {
