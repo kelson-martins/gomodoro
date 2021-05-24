@@ -3,6 +3,4 @@ gomodoro:
   cassandra:
     cluster_id: ""
     cluster_region: ""
-    username: ""
     keyspace: ""
-    password: ""
