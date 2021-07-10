@@ -1,9 +1,9 @@
 # Gomodoro
 
-`[Go]modoro` is a CLI application for those interested in the Pomodoro technique. The application can be used to run Pomodoros from customized lenghts (defaults to 25m), allowing also to assign a `category` and `subcategory` to each pomodoro session.
+`[Go]modoro` is a CLI application for those interested in the Pomodoro technique. The application can be used to run Pomodoros from customized lengths (defaults to 25m), allowing also to assign a `category` and `subcategory` to each pomodoro session.
 
 Characteristics:
-* Uses `SQLite` for storing local pomodoro sessions.
+* Uses `SQLite` for storing the local Pomodoro sessions.
 * Support backup of local database via Google Drive integration.
 * Support synchronization via `Cassandra` database (powered by DataStax).
 * Configuration file `config.yaml` and SQLite database `gomodoro.db` are stored at `~/gomodoro`.
@@ -12,7 +12,7 @@ Characteristics:
 ## Todo
 * Windows support.
 * Support for deletion of sessions from remote Cassandra database.
-* Change the visual alert for pomodoro conclusion to another graphical library.
+* Change the visual alert for the Pomodoro conclusion to another graphical library.
 
 ## Installation
 
